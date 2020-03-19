@@ -37,7 +37,7 @@ setup(
     name='stimvis_01',
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
-    description="a tool that allows interactive",
+    description="a tool for interactive visualization of the TMS-induced effects over tractography data.",
     long_description=readme,
     author="Sofya Kulikova",
     author_email='SPKulikova@hse.ru',

@@ -37,8 +37,8 @@ from fury.utils import vtk
 
 # reads the tractography data in trk format
 # extracts streamlines and the file header. Streamlines should be in the same coordinate system as the FA map (used later).
-# input example: '/home/Example_data/CST_6.trk'
-tractography_file = input("Please, specify the file with tracts that you would like to analyse. File should be in the trk format")
+# input example: '/home/Example_data/tracts.trk'
+tractography_file = input("Please, specify the file with tracts that you would like to analyse. File should be in the trk format. ")
 
 streams, hdr = load_trk(tractography_file)
 streams_array = np.asarray(streams)
@@ -51,12 +51,12 @@ print('imported tractography data:'+tractography_file)
 # T1fs_conform image should be generated in advance during the head meshing procedure
 # input example: fname_T1='/home/Example_data/T1fs_conform.nii.gz'
 
-fname_T1 = input("Please, specify the T1fs_conform image that has been generated during head meshing procedure")
+fname_T1 = input("Please, specify the T1fs_conform image that has been generated during head meshing procedure. ")
 data_T1, affine_T1 = load_nifti(fname_T1)
 
 # load FA image in the same coordinates as tracts
 # input example:fname_FA='/home/Example_data/DTI_FA.nii'
-fname_FA = input("Please, specify the FA image that has been generated during head meshing procedure")
+fname_FA = input("Please, specify the FA image that has been generated during head meshing procedure. ")
 data_FA, affine_FA = load_nifti(fname_FA)
 
 print('loaded T1fs_conform.nii and FA images')
@@ -65,14 +65,14 @@ print('loaded T1fs_conform.nii and FA images')
 # In[4]:
 # specify the head mesh file that is used later in simnibs to simulate induced electric field
 # input example:'/home/Example_data/SUBJECT_MESH.msh'
-mesh_path = input("Please, specify the head mesh file")
+mesh_path = input("Please, specify the head mesh file. ")
 
 last_slach = max([i for i, ltr in enumerate(mesh_path) if ltr == '/'])+1
 subject_name = mesh_path[last_slach:-4]
 
 # specify the directory where you would like to save your simulation results
 # input example:'/home/Example_data/Output'
-out_dir = input("Please, specify the directory where you would like to save your simulation results")
+out_dir = input("Please, specify the directory where you would like to save your simulation results. ")
 out_dir = out_dir+'/simulation_at_pos_'
 
 
@@ -176,7 +176,7 @@ for stream in range(len(new_streams_T1_array)):
 # This function is to run simulations of the induced magnetic field using simnibs software
 
 
-def simulation(fnamehead, pathfem, pos_centre='C5', pos_ydir='CP5', distance=4, current_change=2e6):
+def simulation(fnamehead, pathfem, pos_centre=[-74.296158, -10.213354, 28.307243], pos_ydir=[-74.217369, -37.293205, 20.05232], distance=4, current_change=2e6):
     # Initalize a session
     s = sim_struct.SESSION()
     # Name of head mesh

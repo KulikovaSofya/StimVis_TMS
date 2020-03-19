@@ -9,7 +9,7 @@ StimVis
         :target: https://pypi.python.org/pypi/StimVis_TMS
 
 
-a tool that allows interactive
+a tool that allows interactive visualization of the TMS-induced effects over tractography data.
 
 * Free software: 3-clause BSD license
 * Documentation: (COMING SOON!) https://KulikovaSofya.github.io/StimVis_TMS.
