@@ -6,6 +6,11 @@ cache:
     - $HOME/.cache/pip
     - $HOME/.ccache  # https://github.com/travis-ci/travis-ci/issues/5853
 
+ env:
+      global:
+        # Doctr deploy key for KulikovaSofya/StimVis_TMS
+        - secure: "dJ72ttEsbJ3QsifkaouaPgKzpcKHmajEfwMbkp12ry/tEaFYgoe6Ys5pmIE8z7LDmfqpt4FK3LGrBn64/oThW2BeuP5TzSv7FMwEtvLWGHk3Ten2X8dvILbwEIuGNYQGV8JdvDiUTCFVknVUggZag5pBR54kGOcl/v6aDI0AQFXY80d/CCWBsUs/X3qpJ53/fgdvKj6kySTReD3+WjVHHB0MwuR/c6L0nr43vq1l8AWVFxwvbqkcw99uQalI8L4PAvSgQoLFHtC37tlnVJ9ZkXYZCPKiy9/W555aOVP6UtIRZyiOTv0NThXa+cP1s4a6x87vdT2FV/HJcLLOlFAuRcBBWAQOH5e6JcGz83npg+osrU7LdwFj0AU060jrrhWXujcCHo04RapAco7SwWLbTFb88NWEMfEjhWYFRD6TS9RB8PlZHGQ2OkJb4ExfZ2wmOtPR10cfsZvXp3nwbcRNXRaYj2rEw5dv9MLDK7F50dnFXYlCouzoZ8Hkphs7gOilNHcvYc/zUDBqNNIfgD180imbfu0NjAvlLRa/KOd4R0rcpCL8C6mD8i4jrMFIXvKfhSc/yXtI5tQa+0+GEFdCgfVvy5gvpNisKza9yklL54XuiC38g4UgW2IefNe2mBWULyOK5Mp0f77IF8PW+fEs6FXPOP3MHncwtUiycq+MYL4="
+
 install:
   # Install this package and the packages listed in requirements.txt.
   - pip install .
@@ -17,4 +22,7 @@ script:
   - coverage report -m  # Generate test coverage report.
   - codecov  # Upload the report to codecov.
   - flake8  # Enforce code style ('relaxed' line length limit is set in .flake8 config file).
+  - set -e  # If any of the following steps fail, just stop at that point.
   - make -C docs html  # Build the documentation.
+  - pip install doctr
+  - doctr deploy --built-docs docs/build/html .  # Publish the documentation.
