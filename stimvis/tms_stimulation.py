@@ -56,7 +56,7 @@ data_T1, affine_T1 = load_nifti(fname_T1)
 
 # load FA image in the same coordinates as tracts
 # input example:fname_FA='/home/Example_data/DTI_FA.nii'
-fname_FA = input("Please, specify the FA image that has been generated during head meshing procedure. ")
+fname_FA = input("Please, specify the FA image. ")
 data_FA, affine_FA = load_nifti(fname_FA)
 
 print('loaded T1fs_conform.nii and FA images')
@@ -176,7 +176,7 @@ for stream in range(len(new_streams_T1_array)):
 # This function is to run simulations of the induced magnetic field using simnibs software
 
 
-def simulation(fnamehead, pathfem, pos_centre=[-74.296158, -10.213354, 28.307243], pos_ydir=[-74.217369, -37.293205, 20.05232], distance=4, current_change=2e6):
+def simulation(fnamehead, pathfem, pos_centre=[-74.296158, -10.213354, 28.307243], pos_ydir=[-74.217369, -37.293205, 20.05232], distance=4, current_change=1e6):
     # Initalize a session
     s = sim_struct.SESSION()
     # Name of head mesh
@@ -184,7 +184,7 @@ def simulation(fnamehead, pathfem, pos_centre=[-74.296158, -10.213354, 28.307243
     # Output folder
     s.pathfem = pathfem
     # Not to visualize results in gmsh when running simulations (else set to True)
-    s.open_in_gmsh = True
+    s.open_in_gmsh = False
     # Initialize a list of TMS simulations
     tmslist = s.add_tmslist()
     # Select coil. For full list of available coils, please see simnibs documentation
@@ -348,14 +348,39 @@ def deriv_e_field(coordinates, e_field_nodes, LSD, ttt):
 
 
 # In[17]:
-# a function to compute the TMS effects for a given coil position
 def change_TMS_effects(x, y, z):
+    """
+    Computes the TMS effects for a given coil position (x,y,z) 
+    according to the existing theoretical models
+    see Silva et al. (2008) Elucidating the mechanisms and loci of neuronal excitation 
+    by transcranial magnetic stimulation using a finite element model of a cortical sulcus
+    https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2693370/
+
+    Parameters
+    ----------
+    x,y,z  :  float
+        Coordinates of a stimulation coil.
+
+    Returns
+    -------
+    my_lut  :  lookup_tablevtkLookupTable
+        Lookup table for the colormap to be used when visualizing TMS effects over the streamlines
+
+    my_colors : numpy array
+        Contains colors encoing the TMS effects at each point of each of the streamlines
+
+    effective_field  : numpy array, float
+        Contains two components of the TMS effects and their sum for each point of each of the streamlines. Saved as a txt file.
+    
+    mesh_file  :  gmsh structure
+        A gmsh structure containing information about the incuded electric field. Saved as a msh file.
+    """
 
     l1 = 2  # membrane space constant 2mm
     l2 = l1**2
     effect_max = -1000000
     effect_min = 1000000
-    position = [x-256/2, y-256/2, z-256/2]
+    position = [x-256/2, y-256/2, z-256/2]  # -256/2 because of a freesurfer RAS coordinate system
     current_out_dir = out_dir+str(x)+'_'+str(y)+'_'+str(z)
     simulation(mesh_path, current_out_dir, pos_centre=position)
     mesh_file = current_out_dir+'/'+subject_name+'_TMS_1-0001_Magstim_70mm_Fig8_nii_scalar.msh'
