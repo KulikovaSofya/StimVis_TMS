@@ -11,6 +11,7 @@ services:
 install:
   # Install this package and the packages listed in requirements.txt.
   - pip install .
+  - pip install -f https://github.com/simnibs/simnibs/releases/latest simnibs
   # Install extra requirements for running tests and building docs.
   - pip install -r requirements-dev.txt
 
