@@ -11,6 +11,9 @@ services:
 install:
   # Install this package and the packages listed in requirements.txt.
   - pip install .
+  - wget https://github.com/simnibs/simnibs/releases/latest/download/environment_linux.yml
+  - cat environment_linux.yml | grep -v pyopengl > env_linux.yml
+  - conda env create --file env_linux.yml
   - pip install -f https://github.com/simnibs/simnibs/releases/latest simnibs
   # Install extra requirements for running tests and building docs.
   - pip install -r requirements-dev.txt
