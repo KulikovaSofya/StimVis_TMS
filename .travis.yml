@@ -6,18 +6,7 @@ cache:
     - $HOME/.cache/pip
     - $HOME/.ccache  # https://github.com/travis-ci/travis-ci/issues/5853
 
- before_install:
-  - sudo apt-get update
-  - sudo apt-get install -y wget && rm -rf /var/lib/apt/lists/*
-  - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && mkdir /root/.conda/ && bash Miniconda3-latest-Linux-x86_64.sh -b && rm -f Miniconda3-latest-Linux-x86_64.sh
-  - wget https://github.com/simnibs/simnibs/releases/latest/download/environment_linux.yml
-  - cat environment_linux.yml | grep -v pyopengl > env_linux.yml
-  - conda env create --file env_linux.yml
-
 install:
-  # Install the latest simnibs
-  - pip install -f https://github.com/simnibs/simnibs/releases/latest simnibs
-  - mkdir $HOME/SimNIBS && postinstall_simnibs -s --copy-matlab --setup-links -d $HOME/SimNIBS
   # Install this package and the packages listed in requirements.txt.
   - pip install .
   # Install extra requirements for running tests and building docs.
@@ -27,8 +16,5 @@ script:
   - coverage run -m pytest  # Run the tests and check for test coverage.
   - coverage report -m  # Generate test coverage report.
   - codecov  # Upload the report to codecov.
-  - flake8  # Enforce code style ('relaxed' line length limit is set in .flake8 config file).
-  - set -e  # If any of the following steps fail, just stop at that point.
+  - flake8 --max-line-length=115  # Enforce code style (but relax line length limit a bit).
   - make -C docs html  # Build the documentation.
-  - pip install doctr
-  - doctr deploy --built-docs docs/build/html .  # Publish the documentation.
