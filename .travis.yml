@@ -21,6 +21,7 @@ cache:
 
 install:
   # Install the latest simnibs
+  - pip install -f https://github.com/simnibs/simnibs/releases/latest simnibs
   - mkdir $HOME/SimNIBS && postinstall_simnibs -s --copy-matlab --setup-links -d $HOME/SimNIBS
   # Install this package and the packages listed in requirements.txt.
   - pip install .
