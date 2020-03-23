@@ -6,16 +6,27 @@ cache:
     - $HOME/.cache/pip
     - $HOME/.ccache  # https://github.com/travis-ci/travis-ci/issues/5853
 
+ before_install:
+    - sudo apt-get update
+    - sudo apt-get install -y wget && rm -rf /var/lib/apt/lists/*
+    - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && mkdir /root/.conda/ \
+	&& bash Miniconda3-latest-Linux-x86_64.sh -b \
+	&& rm -f Miniconda3-latest-Linux-x86_64.sh
+    - wget https://github.com/simnibs/simnibs/releases/latest/download/environment_linux.yml
+    - cat environment_linux.yml | grep -v pyopengl > env_linux.yml
+    - conda env create --file env_linux.yml
+ 
  env:
       global:
         # Doctr deploy key for KulikovaSofya/StimVis_TMS
         - secure: "dJ72ttEsbJ3QsifkaouaPgKzpcKHmajEfwMbkp12ry/tEaFYgoe6Ys5pmIE8z7LDmfqpt4FK3LGrBn64/oThW2BeuP5TzSv7FMwEtvLWGHk3Ten2X8dvILbwEIuGNYQGV8JdvDiUTCFVknVUggZag5pBR54kGOcl/v6aDI0AQFXY80d/CCWBsUs/X3qpJ53/fgdvKj6kySTReD3+WjVHHB0MwuR/c6L0nr43vq1l8AWVFxwvbqkcw99uQalI8L4PAvSgQoLFHtC37tlnVJ9ZkXYZCPKiy9/W555aOVP6UtIRZyiOTv0NThXa+cP1s4a6x87vdT2FV/HJcLLOlFAuRcBBWAQOH5e6JcGz83npg+osrU7LdwFj0AU060jrrhWXujcCHo04RapAco7SwWLbTFb88NWEMfEjhWYFRD6TS9RB8PlZHGQ2OkJb4ExfZ2wmOtPR10cfsZvXp3nwbcRNXRaYj2rEw5dv9MLDK7F50dnFXYlCouzoZ8Hkphs7gOilNHcvYc/zUDBqNNIfgD180imbfu0NjAvlLRa/KOd4R0rcpCL8C6mD8i4jrMFIXvKfhSc/yXtI5tQa+0+GEFdCgfVvy5gvpNisKza9yklL54XuiC38g4UgW2IefNe2mBWULyOK5Mp0f77IF8PW+fEs6FXPOP3MHncwtUiycq+MYL4="
 
 install:
-  # Install this package and the packages listed in requirements.txt.
-  - pip install .
   # Install the latest simnibs
   - pip install -f https://github.com/simnibs/simnibs/releases/latest simnibs
+  - mkdir $HOME/SimNIBS && postinstall_simnibs -s --copy-matlab --setup-links -d $HOME/SimNIBS
+  # Install this package and the packages listed in requirements.txt.
+  - pip install .
   # Install extra requirements for running tests and building docs.
   - pip install -r requirements-dev.txt
 
