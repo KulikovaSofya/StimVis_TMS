@@ -6,6 +6,8 @@ cache:
     - $HOME/.cache/pip
     - $HOME/.ccache  # https://github.com/travis-ci/travis-ci/issues/5853
 
+services:
+  - docker
 install:
   # Install this package and the packages listed in requirements.txt.
   - pip install .
