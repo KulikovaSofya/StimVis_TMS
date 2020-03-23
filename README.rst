@@ -65,3 +65,10 @@ As soon as the calculations are finished the total TMS effect will be shown over
 output_directory/stimulation_at_pos_<selected coil position>/subject_effective_field.txt 
 
 via pickle.dump() in a form of a numpy array.    
+
+=====
+Sample Data
+=====
+
+Sample data to test StimVis could be downloaded with this link:
+https://drive.google.com/drive/folders/1H86xzAhA7VS0i8sNdIzoO5BWQrCa_qyu?usp=sharing
