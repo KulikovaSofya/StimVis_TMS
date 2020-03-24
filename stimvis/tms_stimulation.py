@@ -206,8 +206,8 @@ def change_TMS_effects(x, y, z):
 
     l1 = 2  # membrane space constant 2mm
     l2 = l1**2
-    effect_max = -1000000
-    effect_min = 1000000
+    effect_max = -100
+    effect_min = 100
     position = [x-256/2, y-256/2, z-256/2]  # -256/2 because of a freesurfer RAS coordinate system
     current_out_dir = out_dir+str(x)+'_'+str(y)+'_'+str(z)
     simulation(mesh_path, current_out_dir, pos_centre=position)
@@ -389,8 +389,8 @@ def main():
     bundle_native = list_streams_T1
 
     # generating a list of colors to visualize later the stimualtion effects
-    effect_max = -1000000
-    effect_min = 1000000
+    effect_max = -100
+    effect_min = 100
     colors = [np.random.rand(*current_streamline.shape) for current_streamline in bundle_native]
 
     for my_streamline in range(len(bundle_native)-1):
