@@ -256,7 +256,9 @@ def main():
     # input example: '/home/Example_data/tracts.trk'
     tractography_file = input("Please, specify the file with tracts that you would like to analyse. File should be in the trk format. ")
 
-    streams, hdr = load_trk(tractography_file)
+    # streams, hdr = load_trk(tractography_file)  # for old DIPY version
+    sft = load_trk(tractography_file, tractography_file)
+    streams = sft.streamlines
     streams_array = np.asarray(streams)
     print('imported tractography data:'+tractography_file)
 
