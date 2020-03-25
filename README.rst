@@ -72,3 +72,8 @@ Sample Data
 
 Sample data to test StimVis could be downloaded with this link:
 https://drive.google.com/drive/folders/1H86xzAhA7VS0i8sNdIzoO5BWQrCa_qyu?usp=sharing
+
+=====
+Reproducibility Runs
+=====
+Provisional CodeOcean Compute Capsule's DOI is 10.24433/CO.4813589.v1
