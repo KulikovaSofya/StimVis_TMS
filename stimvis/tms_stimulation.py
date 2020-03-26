@@ -206,11 +206,14 @@ def change_TMS_effects(x, y, z):
 
     l1 = 2  # membrane space constant 2mm
     l2 = l1**2
+    print(x,y,z)
     effect_max = 0.100
     effect_min = -0.100
     position = [x-256/2, y-256/2, z-256/2]  # -256/2 because of a freesurfer RAS coordinate system
     current_out_dir = out_dir+str(x)+'_'+str(y)+'_'+str(z)
+
     simulation(mesh_path, current_out_dir, pos_centre=position)
+
     mesh_file = current_out_dir+'/'+subject_name+'_TMS_1-0001_Magstim_70mm_Fig8_nii_scalar.msh'
     field_mesh = simnibs.msh.read_msh(mesh_file)
     field_as_nodedata = field_mesh.elmdata[0].as_nodedata()
@@ -256,9 +259,9 @@ def main():
     # input example: '/home/Example_data/tracts.trk'
     tractography_file = input("Please, specify the file with tracts that you would like to analyse. File should be in the trk format. ")
 
-    # streams, hdr = load_trk(tractography_file)  # for old DIPY version
-    sft = load_trk(tractography_file, tractography_file)
-    streams = sft.streamlines
+    streams, hdr = load_trk(tractography_file)  # for old DIPY version
+    # sft = load_trk(tractography_file, tractography_file)
+    # streams = sft.streamlines
     streams_array = np.asarray(streams)
     print('imported tractography data:'+tractography_file)
 
@@ -279,13 +282,16 @@ def main():
 
     # specify the head mesh file that is used later in simnibs to simulate induced electric field
     # input example:'/home/Example_data/SUBJECT_MESH.msh'
+    global mesh_path
     mesh_path = input("Please, specify the head mesh file. ")
 
     last_slach = max([i for i, ltr in enumerate(mesh_path) if ltr == '/'])+1
+    global subject_name
     subject_name = mesh_path[last_slach:-4]
 
     # specify the directory where you would like to save your simulation results
     # input example:'/home/Example_data/Output'
+    global out_dir
     out_dir = input("Please, specify the directory where you would like to save your simulation results. ")
     out_dir = out_dir+'/simulation_at_pos_'
 
@@ -348,10 +354,11 @@ def main():
 
     # transforming streamlines from FA to T1 space
     new_streams_T1 = streamline.transform_streamlines(new_streams_FA, FA_to_T1)
+    global new_streams_T1_array
     new_streams_T1_array = np.asarray(new_streams_T1)
 
     # calculating amline derivatives along the streamlines to get the local orientation of the streamlines
-
+    global streams_array_derivative
     streams_array_derivative = copy.deepcopy(new_streams_T1_array)
 
     print('calculating amline derivatives')
@@ -380,17 +387,23 @@ def main():
 
     torusActor = vtk.vtkActor()
     torusActor.SetMapper(torusMapper)
-    torusActor.SetPosition(30, 30, 27)
+
+    torus_pos_x = 100
+    torus_pos_y = 129
+    torus_pos_z = 211
+    torusActor.SetPosition(torus_pos_x, torus_pos_y, torus_pos_z)
 
     list_streams_T1 = list(new_streams_T1)
     # adding one fictive bundle of length 1 with coordinates [0,0,0] to avoid some bugs with actor.line during visualization
     list_streams_T1.append(np.array([0, 0, 0]))
 
+    global bundle_native
     bundle_native = list_streams_T1
 
     # generating a list of colors to visualize later the stimualtion effects
     effect_max = 0.100
     effect_min = -0.100
+    global colors
     colors = [np.random.rand(*current_streamline.shape) for current_streamline in bundle_native]
 
     for my_streamline in range(len(bundle_native)-1):
@@ -401,9 +414,11 @@ def main():
     colors[my_streamline+1] = vtkplotter.colors.colorMap(effect_min, name='jet', vmin=effect_min, vmax=effect_max)
 
     # Vizualization of fibers over T1
-    i = 0
-    j = 0
-    k = 0
+    
+    # i_coord = 0
+    # j_coord = 0
+    # k_coord = 0
+    # global number_of_stimulations
     number_of_stimulations = 0
 
     actor_line_list = []
@@ -418,6 +433,16 @@ def main():
     lut = actor.colormap_lookup_table(scale_range=(effect_min, effect_max),
                                         hue_range=(0.4, 1.),
                                         saturation_range=(1, 1.))
+
+    # # the lines below is for a non-interactive demonstration run only.
+    # # they should remain commented unless you set "interactive" to False
+    # lut, colors = change_TMS_effects(torus_pos_x, torus_pos_y, torus_pos_z)
+    # bar =  actor.scalar_bar(lut)
+    # bar.SetTitle("TMS effect")
+    # bar.SetHeight(0.3)
+    # bar.SetWidth(0.10)
+    # bar.SetPosition(0.85, 0.3)
+    # scene.add(bar)
 
     actor_line_list.append(actor.line(bundle_native, colors, linewidth=5, fake_tube=True, lookup_colormap=lut))
 
@@ -585,14 +610,15 @@ def main():
     panel_picking.add_element(button_example, (0.5, 0.1))
 
     def change_text_callback(i_ren, obj, button):
-        text2.message = str(i)+' '+str(j)+' '+str(k)
-        torusActor.SetPosition(i, j, k)
-        lut, colors = change_TMS_effects(i, j, k)
+        text2.message = str(i_coord)+' '+str(j_coord)+' '+str(k_coord)
+        torusActor.SetPosition(i_coord, j_coord, k_coord)
+        print (i_coord, j_coord, k_coord)
+        lut, colors = change_TMS_effects(i_coord, j_coord, k_coord)
         scene.rm(actor_line_list[0])
         actor_line_list.append(actor.line(bundle_native, colors, linewidth=5, fake_tube=True, lookup_colormap=lut))
         scene.add(actor_line_list[1])
 
-        global number_of_stimulations
+        nonlocal number_of_stimulations
         global bar
         if number_of_stimulations > 0:
             scene.rm(bar)
@@ -623,11 +649,13 @@ def main():
                     event_pos[1],
                     0,
                     scene)
-        global i, j, k
-        i, j, k = obj.picker.GetPointIJK()
-        result_position.message = '({}, {}, {})'.format(str(i), str(j), str(k))
-        result_value.message = '%.8f' % data_T1[i, j, k]
-        torusActor.SetPosition(i, j, k)
+        
+        global i_coord, j_coord, k_coord
+        i_coord, j_coord, k_coord = obj.picker.GetPointIJK()
+        print (i_coord, j_coord, k_coord)
+        result_position.message = '({}, {}, {})'.format(str(i_coord), str(j_coord), str(k_coord))
+        result_value.message = '%.8f' % data_T1[i_coord, j_coord, k_coord]
+        torusActor.SetPosition(i_coord, j_coord, k_coord)
 
     image_actor_z.AddObserver('LeftButtonPressEvent', left_click_callback, 1.0)
 
@@ -650,11 +678,14 @@ def main():
 
     scene.zoom(2.0)
     scene.reset_clipping_range()
+    scene.set_camera(position=(-642.07, 495.40, 148.49), focal_point=(127.50, 127.50, 127.50), view_up=(0.02, -0.01, 1.00))
 
     if interactive:
         show_m.add_window_callback(win_callback)
         show_m.render()
         show_m.start()
+    else:
+        window.record(scene, out_path=out_dir+'/bundles_and_effects.png', size=(1200, 900), reset_camera=True)
 
 
 if __name__ == "__main__":
