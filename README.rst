@@ -79,6 +79,6 @@ Reproducibility Runs
 Provisional CodeOcean Compute Capsule's DOI is 10.24433/CO.4813589.v1
 
 =====
-Acknoledgements
+Acknowledgements
 =====
 This project has been supported by Russian Science Foundation №18-75-00034.
